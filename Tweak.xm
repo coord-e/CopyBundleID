@@ -24,7 +24,7 @@
 																									@"UIApplicationShortcutItemSubtitle": arg1,
 																									@"UIApplicationShortcutItemType": comTypeId };
 
-		SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) staticShortcutItemWithDictionary: info localizationHandler: nil];
+		SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) staticShortcutItemWithDictionary:info localizationHandler:nil];
 
 		return [res arrayByAddingObjectsFromArray: @[copyAction]];
 }
@@ -35,11 +35,11 @@
 
 - (void)_setupViewsWithIcon: (UIImage*)icon title: (NSString*)title subtitle: (NSString*)subtitle
 {
-								if([self.shortcutItem.type isEqualToString:comTypeId]) {
-																UIImage *image = [%c(UIImage) imageNamed: @"/Library/Application Support/CopyBundleID/Resources.bundle/Icon"];
-																%orig(image, title, subtitle);
-								} else
-																%orig;
+	if([self.shortcutItem.type isEqualToString:comTypeId]) {
+		UIImage *image = [%c(UIImage) imageNamed: @"/Library/Application Support/CopyBundleID/Resources.bundle/Icon"];
+		%orig(image, title, subtitle);
+	} else
+		%orig;
 }
 
 - (id)initWithShortcutItem:(SBSApplicationShortcutItem*)item menuPosition:(int)arg2 orientation:(int)arg3 application:(id)arg4 assetManagerProvider:(id)arg5 monogrammerProvider:(id)arg6 options:(unsigned)arg7
@@ -56,11 +56,11 @@
 
 - (void)menuContentView: (id)arg1 activateShortcutItem: (UIApplicationShortcutItem*)arg2 index: (long long)arg3
 {
-								if([arg2.type isEqualToString:comTypeId]) {
-																[%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
-																[self dismissAnimated:YES completionHandler:nil];
-								} else
-																%orig;
+	if([arg2.type isEqualToString:comTypeId]) {
+		[%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
+		[self dismissAnimated:YES completionHandler:nil];
+	} else
+		%orig;
 }
 
 %end
