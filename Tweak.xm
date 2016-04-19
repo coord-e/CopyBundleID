@@ -26,7 +26,7 @@
 
 		SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) staticShortcutItemWithDictionary:info localizationHandler:nil];
 
-		return [res arrayByAddingObjectsFromArray: @[copyAction]];
+		return [[NSOrderedSet orderedSetWithArray:[res arrayByAddingObjectsFromArray: @[copyAction]]] array];
 }
 %end
 
