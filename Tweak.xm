@@ -1,8 +1,9 @@
 #define comTypeId @"com.coord-e.copybundleid"
 
 @interface SBSApplicationShortcutItem : NSObject
+@property (nonatomic, copy) NSString *localizedSubtitle;
+@property (nonatomic, copy) NSString *localizedTitle;
 @property(nonatomic, copy) NSString *type;
-+ (instancetype)staticShortcutItemWithDictionary:(NSDictionary*)arg1 localizationHandler:(NSString* (^)(NSString*, NSString*))arg2;
 @end
 
 @interface SBApplicationShortcutMenu : NSObject
@@ -20,16 +21,15 @@
 		if(res == nil)
 			res = [NSArray new];
 
-		NSDictionary *info = @{@"UIApplicationShortcutItemTitle": @"Copy Bundle ID",
-																									@"UIApplicationShortcutItemSubtitle": arg1,
-																									@"UIApplicationShortcutItemType": comTypeId };
-
-		SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) staticShortcutItemWithDictionary:info localizationHandler:nil];
+		SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
+		copyAction.localizedTitle = @"Copy Bundle ID";
+		copyAction.localizedSubtitle = arg1;
+		copyAction.type = comTypeId;
 
 		return [[NSOrderedSet orderedSetWithArray:[res arrayByAddingObjectsFromArray: @[copyAction]]] array];
 }
-%end
 
+%end
 
 %hook SBApplicationShortcutMenuItemView
 

@@ -1,7 +1,7 @@
 Package: com.coord-e.copybundleid
 Name: CopyBundleID
 Depends: mobilesubstrate
-Version: 0.0.3
+Version: 0.0.4
 Architecture: iphoneos-arm
 Description: Copy apps' bundleID quickly!
 Depiction: http://repo.coord-e.com/depictions?id=copybundleid
