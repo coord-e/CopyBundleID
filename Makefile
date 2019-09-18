@@ -1,5 +1,5 @@
-export ARCHS = armv7 arm64
-export SDKVERSION = 9.0
+export ARCHS = arm64
+export SDKVERSION = 12.4
 
 include theos/makefiles/common.mk
 
