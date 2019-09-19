@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 static UIViewController* obtainBaseController() {
   UIViewController *base = [UIApplication sharedApplication].keyWindow.rootViewController;
@@ -61,6 +62,7 @@ static void presentToast(NSString* message, float duration) {
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
   if([arg2.type isEqualToString:comTypeId]) {
     [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
+    AudioServicesPlayAlertSound(1007);
     presentToast(@"✓ Copied!", 0.2);
     [self dismissAnimated:YES withCompletionHandler:nil];
   } else {
