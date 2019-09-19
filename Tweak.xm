@@ -1,3 +1,28 @@
+#import <UIKit/UIKit.h>
+#import <AudioToolbox/AudioToolbox.h>
+
+static UIViewController* obtainBaseController() {
+  UIViewController *base = [UIApplication sharedApplication].keyWindow.rootViewController;
+  while (base.presentedViewController != nil && !base.presentedViewController.isBeingDismissed) {
+    base = base.presentedViewController;
+  }
+  return base;
+}
+
+static void presentToast(NSString* message, float duration) {
+  UIViewController* controller = obtainBaseController();
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                message:message
+                                                preferredStyle:UIAlertControllerStyleAlert];
+
+  [controller presentViewController:alert animated:YES completion: ^{
+    dispatch_time_t time = dispatch_walltime(DISPATCH_TIME_NOW, duration * NSEC_PER_SEC);
+    dispatch_after(time, dispatch_get_main_queue(), ^{
+      [alert dismissViewControllerAnimated:YES completion:nil];
+    });
+  }];
+}
+
 #define comTypeId @"com.coord-e.copybundleid"
 
 @interface SBSApplicationShortcutItem : NSObject
@@ -37,6 +62,8 @@
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
   if([arg2.type isEqualToString:comTypeId]) {
     [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
+    AudioServicesPlayAlertSound(1007);
+    presentToast(@"✓ Copied!", 0.2);
     [self dismissAnimated:YES withCompletionHandler:nil];
   } else {
     %orig;
