@@ -25,10 +25,14 @@ static void presentToast(NSString* message, float duration) {
 
 #define comTypeId @"com.coord-e.copybundleid"
 
+@interface SBSApplicationShortcutIcon : NSObject
+@end
+
 @interface SBSApplicationShortcutItem : NSObject
 @property (nonatomic, copy) NSString *localizedSubtitle;
 @property (nonatomic, copy) NSString *localizedTitle;
-@property(nonatomic, copy) NSString *type;
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy) SBSApplicationShortcutIcon *icon;
 @end
 
 @interface SBUIAppIconForceTouchControllerDataProvider : NSObject
@@ -40,6 +44,12 @@ static void presentToast(NSString* message, float duration) {
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(id)arg2;
 @end
 
+@interface SBSApplicationShortcutCustomImageIcon : SBSApplicationShortcutIcon
+- (id)initWithImagePNGData:(id)arg1;
+@end
+
+static NSData* iconData;
+
 %hook SBUIAppIconForceTouchControllerDataProvider
 
 - (NSArray*)applicationShortcutItems {
@@ -47,10 +57,13 @@ static void presentToast(NSString* message, float duration) {
     if(res == nil)
       res = [NSArray new];
 
+    SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
+
     SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
     copyAction.localizedTitle = @"Copy Bundle ID";
     copyAction.localizedSubtitle = self.applicationBundleIdentifier;
     copyAction.type = comTypeId;
+    copyAction.icon = icon;
 
     return [res arrayByAddingObject: copyAction];
 }
@@ -71,3 +84,9 @@ static void presentToast(NSString* message, float duration) {
 }
 
 %end
+
+%ctor {
+    iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
+
+    %init;
+}
