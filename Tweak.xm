@@ -48,6 +48,8 @@ static void presentToast(NSString* message, float duration) {
 - (id)initWithImagePNGData:(id)arg1;
 @end
 
+static NSData* iconData;
+
 %hook SBUIAppIconForceTouchControllerDataProvider
 
 - (NSArray*)applicationShortcutItems {
@@ -55,8 +57,6 @@ static void presentToast(NSString* message, float duration) {
     if(res == nil)
       res = [NSArray new];
 
-    UIImage *image = [UIImage imageNamed: @"/Library/Application Support/CopyBundleID/icon"];
-    NSData *iconData = [[NSData alloc] initWithData: UIImagePNGRepresentation(image)];
     SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
 
     SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
@@ -84,3 +84,9 @@ static void presentToast(NSString* message, float duration) {
 }
 
 %end
+
+%ctor {
+    iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
+
+    %init;
+}
