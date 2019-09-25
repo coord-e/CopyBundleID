@@ -20,7 +20,7 @@ CopyBundleID_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 include $(THEOS_MAKE_PATH)/tweak.mk
 
 ifeq ($(SIMULATOR), 1)
-setup:: clean all
+setup:: all
 	@rm -f /opt/simject/$(TWEAK_NAME).dylib
 	@cp -v $(THEOS_OBJ_DIR)/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
 	@cp -v $(PWD)/$(TWEAK_NAME).plist /opt/simject
