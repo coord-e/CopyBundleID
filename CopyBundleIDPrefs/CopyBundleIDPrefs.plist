@@ -5,17 +5,46 @@
 	<key>entry</key>
 	<dict>
 		<key>cell</key>
-		<string>PSSwitchCell</string>
-		<key>default</key>
-		<true/>
-		<key>defaults</key>
-		<string>com.coord-e.copybundleid</string>
-		<key>key</key>
-		<string>isEnabled</string>
+		<string>PSLinkCell</string>
 		<key>label</key>
 		<string>CopyBundleID</string>
-		<key>PostNotification</key>
-		<string>com.coord-e.copybundleid/settingschanged</string>
 	</dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>Sound effect on copy</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>enableSound</string>
+			<key>defaults</key>
+			<string>com.coord-e.copybundleid</string>
+			<key>PostNotification</key>
+			<string>com.coord-e.copybundleid/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>Alert on copy</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>enableAlert</string>
+			<key>defaults</key>
+			<string>com.coord-e.copybundleid</string>
+			<key>PostNotification</key>
+			<string>com.coord-e.copybundleid/ReloadPrefs</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>CopyBundleID</string>
 </dict>
 </plist>
