@@ -1,6 +1,20 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+static NSString* const actionTypeId = @"com.coord-e.copybundleid";
+static const CFStringRef preferenceId   = CFSTR("com.coord-e.copybundleid");
+static const CFStringRef notificationId = CFSTR("com.coord-e.copybundleid/ReloadPrefs");
+
+static NSData* iconData;
+
+typedef struct {
+  bool isEnabled;
+  bool isSoundEnabled;
+  bool isAlertEnabled;
+} Config;
+
+static Config config;
+
 static UIViewController* obtainBaseController() {
   UIViewController *base = [UIApplication sharedApplication].keyWindow.rootViewController;
   while (base.presentedViewController != nil && !base.presentedViewController.isBeingDismissed) {
@@ -22,8 +36,6 @@ static void presentToast(NSString* message, float duration) {
     });
   }];
 }
-
-#define comTypeId @"com.coord-e.copybundleid"
 
 @interface SBSApplicationShortcutIcon : NSObject
 @end
@@ -48,24 +60,26 @@ static void presentToast(NSString* message, float duration) {
 - (id)initWithImagePNGData:(id)arg1;
 @end
 
-static NSData* iconData;
-
 %hook SBUIAppIconForceTouchControllerDataProvider
 
 - (NSArray*)applicationShortcutItems {
-    NSArray* res = %orig;
-    if(res == nil)
-      res = [NSArray new];
+  if (!config.isEnabled) {
+    return %orig;
+  }
 
-    SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
+  NSArray* res = %orig;
+  if(res == nil)
+    res = [NSArray new];
 
-    SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
-    copyAction.localizedTitle = @"Copy Bundle ID";
-    copyAction.localizedSubtitle = self.applicationBundleIdentifier;
-    copyAction.type = comTypeId;
-    copyAction.icon = icon;
+  SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
 
-    return [res arrayByAddingObject: copyAction];
+  SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
+  copyAction.localizedTitle = @"Copy Bundle ID";
+  copyAction.localizedSubtitle = self.applicationBundleIdentifier;
+  copyAction.type = actionTypeId;
+  copyAction.icon = icon;
+
+  return [res arrayByAddingObject: copyAction];
 }
 
 %end
@@ -73,10 +87,16 @@ static NSData* iconData;
 %hook SBUIAppIconForceTouchController
 
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
-  if([arg2.type isEqualToString:comTypeId]) {
+  if([arg2.type isEqualToString:actionTypeId]) {
     [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
-    AudioServicesPlayAlertSound(1007);
-    presentToast(@"✓ Copied!", 0.2);
+
+    if (config.isSoundEnabled) {
+      AudioServicesPlayAlertSound(1007);
+    }
+    if (config.isAlertEnabled) {
+      presentToast(@"✓ Copied!", 0.2);
+    }
+
     [self dismissAnimated:YES withCompletionHandler:nil];
   } else {
     %orig;
@@ -85,7 +105,26 @@ static NSData* iconData;
 
 %end
 
+static BOOL unwrap(CFPropertyListRef val, BOOL default_) {
+  return val ? [(__bridge id)val boolValue] : default_;
+}
+
+static void loadPrefs() {
+  CFPreferencesAppSynchronize(preferenceId);
+  config.isEnabled      = unwrap(CFPreferencesCopyAppValue(CFSTR("enabled"), preferenceId), YES);
+  config.isSoundEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableSound"), preferenceId), YES);
+  config.isAlertEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableAlert"), preferenceId), YES);
+}
+
 %ctor {
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                    NULL,
+                                    (CFNotificationCallback)loadPrefs,
+                                    notificationId,
+                                    NULL,
+                                    CFNotificationSuspensionBehaviorDeliverImmediately);
+    loadPrefs();
+
     iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
 
     %init;
