@@ -101,15 +101,21 @@ static void presentToast(NSString* message, float duration) {
 %end
 
 static NSString* getPListPath() {
+  static NSString* cache;
+
+  if (cache == NULL) {
 #if TARGET_OS_SIMULATOR
-  NSString* base = @(getenv("SIMULATOR_SHARED_RESOURCES_DIRECTORY"));
+    NSString* base = @(getenv("SIMULATOR_SHARED_RESOURCES_DIRECTORY"));
 #else
-  NSString* base = NSHomeDirectory();
+    NSString* base = NSHomeDirectory();
 #endif
 
-  return [NSString stringWithFormat:@"%@/Library/Preferences/%@.plist",
-                   base,
-                   preferenceId];
+    cache = [NSString stringWithFormat:@"%@/Library/Preferences/%@.plist",
+                    base,
+                    preferenceId];
+  }
+
+  return cache;
 }
 
 static void loadPrefs() {
