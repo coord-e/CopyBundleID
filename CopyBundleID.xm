@@ -1,20 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import "Interfaces.h"
-
-static NSString* const actionTypeId = @"com.coord-e.copybundleid";
-static const CFStringRef preferenceId   = CFSTR("com.coord-e.copybundleid");
-static const CFStringRef notificationId = CFSTR("com.coord-e.copybundleid/ReloadPrefs");
-
-static NSData* iconData;
-
-typedef struct {
-  bool isEnabled;
-  bool isSoundEnabled;
-  bool isAlertEnabled;
-} Config;
-
-static Config config;
+#import "CopyBundleID.h"
 
 static UIViewController* obtainBaseController() {
   UIViewController *base = [UIApplication sharedApplication].keyWindow.rootViewController;
@@ -38,28 +25,31 @@ static void presentToast(NSString* message, float duration) {
   }];
 }
 
-@interface SBSApplicationShortcutIcon : NSObject
-@end
+static BOOL unwrap(CFPropertyListRef val, BOOL default_) {
+  return val ? [(__bridge id)val boolValue] : default_;
+}
 
-@interface SBSApplicationShortcutItem : NSObject
-@property (nonatomic, copy) NSString *localizedSubtitle;
-@property (nonatomic, copy) NSString *localizedTitle;
-@property (nonatomic, copy) NSString *type;
-@property (nonatomic, copy) SBSApplicationShortcutIcon *icon;
-@end
+static void loadPrefs() {
+  CFPreferencesAppSynchronize(preferenceId);
+  config.isEnabled      = unwrap(CFPreferencesCopyAppValue(CFSTR("enabled"), preferenceId), YES);
+  config.isSoundEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableSound"), preferenceId), YES);
+  config.isAlertEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableAlert"), preferenceId), YES);
+}
 
-@interface SBUIAppIconForceTouchControllerDataProvider : NSObject
-@property(readonly, nonatomic) NSString *applicationBundleIdentifier;
-@end
+static void loadIconData() {
+  iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
+}
 
-@interface SBUIAppIconForceTouchController : NSObject
-- (void)dismissAnimated:(_Bool)arg1 withCompletionHandler:(id)arg2;
-- (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(id)arg2;
-@end
-
-@interface SBSApplicationShortcutCustomImageIcon : SBSApplicationShortcutIcon
-- (id)initWithImagePNGData:(id)arg1;
-@end
+static void initialize() {
+  CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                  NULL,
+                                  (CFNotificationCallback)loadPrefs,
+                                  notificationId,
+                                  NULL,
+                                  CFNotificationSuspensionBehaviorDeliverImmediately);
+  loadPrefs();
+  loadIconData();
+}
 
 %hook SBUIAppIconForceTouchControllerDataProvider
 
@@ -106,27 +96,7 @@ static void presentToast(NSString* message, float duration) {
 
 %end
 
-static BOOL unwrap(CFPropertyListRef val, BOOL default_) {
-  return val ? [(__bridge id)val boolValue] : default_;
-}
-
-static void loadPrefs() {
-  CFPreferencesAppSynchronize(preferenceId);
-  config.isEnabled      = unwrap(CFPreferencesCopyAppValue(CFSTR("enabled"), preferenceId), YES);
-  config.isSoundEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableSound"), preferenceId), YES);
-  config.isAlertEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableAlert"), preferenceId), YES);
-}
-
 %ctor {
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
-                                    NULL,
-                                    (CFNotificationCallback)loadPrefs,
-                                    notificationId,
-                                    NULL,
-                                    CFNotificationSuspensionBehaviorDeliverImmediately);
-    loadPrefs();
-
-    iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
-
-    %init;
+  initialize();
+  %init;
 }
