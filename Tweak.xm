@@ -2,8 +2,8 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 static NSString* const actionTypeId = @"com.coord-e.copybundleid";
-static NSString* const preferenceId = @"com.coord-e.copybundleid";
-static NSString* const notificationId = @"com.coord-e.copybundleid/ReloadPrefs";
+static const CFStringRef preferenceId   = CFSTR("com.coord-e.copybundleid");
+static const CFStringRef notificationId = CFSTR("com.coord-e.copybundleid/ReloadPrefs");
 
 static NSData* iconData;
 
@@ -105,39 +105,22 @@ static void presentToast(NSString* message, float duration) {
 
 %end
 
-static NSString* getPListPath() {
-  static NSString* cache;
-
-  if (cache == NULL) {
-#if TARGET_OS_SIMULATOR
-    NSString* base = @(getenv("SIMULATOR_SHARED_RESOURCES_DIRECTORY"));
-#else
-    NSString* base = NSHomeDirectory();
-#endif
-
-    cache = [NSString stringWithFormat:@"%@/Library/Preferences/%@.plist",
-                      base,
-                      preferenceId];
-  }
-
-  return cache;
+static BOOL unwrap(CFPropertyListRef val, BOOL default_) {
+  return val ? [(__bridge id)val boolValue] : default_;
 }
 
 static void loadPrefs() {
-  NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: getPListPath()];
-  id all = dict[@"enabled"];
-  config.isEnabled = all ? [all boolValue] : YES;
-  id sound = dict[@"enableSound"];
-  config.isSoundEnabled = sound ? [sound boolValue] : YES;
-  id alert = dict[@"enableAlert"];
-  config.isAlertEnabled = alert ? [alert boolValue] : YES;
+  CFPreferencesAppSynchronize(preferenceId);
+  config.isEnabled      = unwrap(CFPreferencesCopyAppValue(CFSTR("enabled"), preferenceId), YES);
+  config.isSoundEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableSound"), preferenceId), YES);
+  config.isAlertEnabled = unwrap(CFPreferencesCopyAppValue(CFSTR("enableAlert"), preferenceId), YES);
 }
 
 %ctor {
     CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                     NULL,
                                     (CFNotificationCallback)loadPrefs,
-                                    (CFStringRef)notificationId,
+                                    notificationId,
                                     NULL,
                                     CFNotificationSuspensionBehaviorDeliverImmediately);
     loadPrefs();
