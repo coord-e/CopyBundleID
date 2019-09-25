@@ -13,7 +13,7 @@ export SDKVERSION = 12.4
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = CopyBundleID
-CopyBundleID_FILES = Tweak.xm
+CopyBundleID_FILES = CopyBundleID.xm
 CopyBundleID_FRAMEWORKS = UIKit
 CopyBundleID_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 
