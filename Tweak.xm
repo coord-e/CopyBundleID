@@ -132,7 +132,7 @@ static void loadPrefs() {
                                     (CFNotificationCallback)loadPrefs,
                                     (CFStringRef)notificationId,
                                     NULL,
-                                    CFNotificationSuspensionBehaviorCoalesce);
+                                    CFNotificationSuspensionBehaviorDeliverImmediately);
     loadPrefs();
 
     iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
