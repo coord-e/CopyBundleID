@@ -20,7 +20,7 @@
     },
     {
       "cell" : "PSSwitchCell",
-      "label" : "Sound effect on copy",
+      "label" : "Sound Effect",
       "defaults" : "com.coord-e.copybundleid",
       "key" : "enableSound",
       "default" : true,
@@ -28,7 +28,7 @@
     },
     {
       "cell" : "PSSwitchCell",
-      "label" : "Alert on copy",
+      "label" : "Alert",
       "defaults" : "com.coord-e.copybundleid",
       "key" : "enableAlert",
       "default" : true,
