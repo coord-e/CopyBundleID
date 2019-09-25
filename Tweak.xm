@@ -1,6 +1,12 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+static NSString* const actionTypeId = @"com.coord-e.copybundleid";
+static NSString* const preferenceId = @"com.coord-e.copybundleid";
+static NSString* const notificationId = @"com.coord-e.copybundleid/ReloadPrefs";
+
+static NSData* iconData;
+
 typedef struct {
   bool isSoundEnabled;
   bool isAlertEnabled;
@@ -30,8 +36,6 @@ static void presentToast(NSString* message, float duration) {
   }];
 }
 
-#define comTypeId @"com.coord-e.copybundleid"
-
 @interface SBSApplicationShortcutIcon : NSObject
 @end
 
@@ -55,8 +59,6 @@ static void presentToast(NSString* message, float duration) {
 - (id)initWithImagePNGData:(id)arg1;
 @end
 
-static NSData* iconData;
-
 %hook SBUIAppIconForceTouchControllerDataProvider
 
 - (NSArray*)applicationShortcutItems {
@@ -69,7 +71,7 @@ static NSData* iconData;
     SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
     copyAction.localizedTitle = @"Copy Bundle ID";
     copyAction.localizedSubtitle = self.applicationBundleIdentifier;
-    copyAction.type = comTypeId;
+    copyAction.type = actionTypeId;
     copyAction.icon = icon;
 
     return [res arrayByAddingObject: copyAction];
@@ -80,7 +82,7 @@ static NSData* iconData;
 %hook SBUIAppIconForceTouchController
 
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
-  if([arg2.type isEqualToString:comTypeId]) {
+  if([arg2.type isEqualToString:actionTypeId]) {
     [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
 
     if (config.isSoundEnabled) {
@@ -97,9 +99,6 @@ static NSData* iconData;
 }
 
 %end
-
-static NSString* const preferenceId = @"com.coord-e.copybundleid";
-static NSString* const notificationId = @"com.coord-e.copybundleid/ReloadPrefs";
 
 static NSString* getPListPath() {
 #if TARGET_OS_SIMULATOR
