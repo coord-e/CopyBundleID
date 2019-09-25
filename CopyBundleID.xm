@@ -33,7 +33,7 @@
 
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
   if([arg2.type isEqualToString:actionTypeId]) {
-    [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
+    [UIPasteboard generalPasteboard].string = arg2.localizedSubtitle;
 
     if (config.isSoundEnabled) {
       AudioServicesPlayAlertSound(1007);
