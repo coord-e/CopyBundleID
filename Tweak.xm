@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import "Interfaces.h"
 
 static NSString* const actionTypeId = @"com.coord-e.copybundleid";
 static const CFStringRef preferenceId   = CFSTR("com.coord-e.copybundleid");
