@@ -1,6 +1,6 @@
 Package: com.coord-e.copybundleid
 Name: CopyBundleID
-Depends: mobilesubstrate
+Depends: mobilesubstrate, preferenceloader, firmware (>= 12.0)
 Version: 0.0.4
 Architecture: iphoneos-arm
 Description: Copy apps' bundleID quickly!
