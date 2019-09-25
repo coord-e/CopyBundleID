@@ -21,6 +21,8 @@ include $(THEOS_MAKE_PATH)/tweak.mk
 
 SUBPROJECTS += CopyBundleIDPrefs
 
+include $(THEOS_MAKE_PATH)/aggregate.mk
+
 # for Xcode 9 or later
 PL_SIMULATOR_ROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot
 PL_SIMULATOR_BUNDLES_PATH = $(PL_SIMULATOR_ROOT)/Library/PreferenceBundles
