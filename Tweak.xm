@@ -1,6 +1,13 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+typedef struct {
+  bool isSoundEnabled;
+  bool isAlertEnabled;
+} Config;
+
+static Config config;
+
 static UIViewController* obtainBaseController() {
   UIViewController *base = [UIApplication sharedApplication].keyWindow.rootViewController;
   while (base.presentedViewController != nil && !base.presentedViewController.isBeingDismissed) {
@@ -75,8 +82,14 @@ static NSData* iconData;
 - (void)appIconForceTouchShortcutViewController:(id)arg1 activateApplicationShortcutItem:(SBSApplicationShortcutItem*)arg2 {
   if([arg2.type isEqualToString:comTypeId]) {
     [%c(UIPasteboard) generalPasteboard].string = arg2.localizedSubtitle;
-    AudioServicesPlayAlertSound(1007);
-    presentToast(@"✓ Copied!", 0.2);
+
+    if (config.isSoundEnabled) {
+      AudioServicesPlayAlertSound(1007);
+    }
+    if (config.isAlertEnabled) {
+      presentToast(@"✓ Copied!", 0.2);
+    }
+
     [self dismissAnimated:YES withCompletionHandler:nil];
   } else {
     %orig;
@@ -85,7 +98,38 @@ static NSData* iconData;
 
 %end
 
+static NSString* const preferenceId = @"com.coord-e.copybundleid";
+static NSString* const notificationId = @"com.coord-e.copybundleid/ReloadPrefs";
+
+static NSString* getPListPath() {
+#if TARGET_OS_SIMULATOR
+  NSString* base = @(getenv("SIMULATOR_SHARED_RESOURCES_DIRECTORY"));
+#else
+  NSString* base = NSHomeDirectory();
+#endif
+
+  return [NSString stringWithFormat:@"%@/Library/Preferences/%@.plist",
+                   base,
+                   preferenceId];
+}
+
+static void loadPrefs() {
+  NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: getPListPath()];
+  id sound = dict[@"enableSound"];
+  config.isSoundEnabled = sound ? [sound boolValue] : YES;
+  id alert = dict[@"enableAlert"];
+  config.isAlertEnabled = alert ? [alert boolValue] : YES;
+}
+
 %ctor {
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
+                                    NULL,
+                                    (CFNotificationCallback)loadPrefs,
+                                    (CFStringRef)notificationId,
+                                    NULL,
+                                    CFNotificationSuspensionBehaviorCoalesce);
+    loadPrefs();
+
     iconData = [NSData dataWithContentsOfFile: @"/Library/Application Support/CopyBundleID/icon@3x.png"];
 
     %init;
