@@ -8,6 +8,7 @@ static NSString* const notificationId = @"com.coord-e.copybundleid/ReloadPrefs";
 static NSData* iconData;
 
 typedef struct {
+  bool isEnabled;
   bool isSoundEnabled;
   bool isAlertEnabled;
 } Config;
@@ -62,19 +63,23 @@ static void presentToast(NSString* message, float duration) {
 %hook SBUIAppIconForceTouchControllerDataProvider
 
 - (NSArray*)applicationShortcutItems {
-    NSArray* res = %orig;
-    if(res == nil)
-      res = [NSArray new];
+  if (!config.isEnabled) {
+    return %orig;
+  }
 
-    SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
+  NSArray* res = %orig;
+  if(res == nil)
+    res = [NSArray new];
 
-    SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
-    copyAction.localizedTitle = @"Copy Bundle ID";
-    copyAction.localizedSubtitle = self.applicationBundleIdentifier;
-    copyAction.type = actionTypeId;
-    copyAction.icon = icon;
+  SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
 
-    return [res arrayByAddingObject: copyAction];
+  SBSApplicationShortcutItem *copyAction = [%c(SBSApplicationShortcutItem) new];
+  copyAction.localizedTitle = @"Copy Bundle ID";
+  copyAction.localizedSubtitle = self.applicationBundleIdentifier;
+  copyAction.type = actionTypeId;
+  copyAction.icon = icon;
+
+  return [res arrayByAddingObject: copyAction];
 }
 
 %end
@@ -120,6 +125,8 @@ static NSString* getPListPath() {
 
 static void loadPrefs() {
   NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: getPListPath()];
+  id all = dict[@"enabled"];
+  config.isEnabled = all ? [all boolValue] : YES;
   id sound = dict[@"enableSound"];
   config.isSoundEnabled = sound ? [sound boolValue] : YES;
   id alert = dict[@"enableAlert"];
