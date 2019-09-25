@@ -1,3 +1,6 @@
+#ifndef COPYBUNDLEID_INTERFACES_H
+#define COPYBUNDLEID_INTERFACES_H
+
 @interface SBSApplicationShortcutIcon : NSObject
 @end
 
@@ -20,3 +23,5 @@
 @interface SBSApplicationShortcutCustomImageIcon : SBSApplicationShortcutIcon
 - (id)initWithImagePNGData:(id)arg1;
 @end
+
+#endif
