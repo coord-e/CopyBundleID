@@ -24,4 +24,7 @@ setup:: clean all
 	@rm -f /opt/simject/$(TWEAK_NAME).dylib
 	@cp -v $(THEOS_OBJ_DIR)/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
 	@cp -v $(PWD)/$(TWEAK_NAME).plist /opt/simject
+
+remove::
+	@rm -f /opt/simject/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).plist
 endif
