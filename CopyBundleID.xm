@@ -13,8 +13,15 @@
   }
 
   NSArray* res = %orig;
-  if(res == nil)
+  if(res == nil) {
     res = [NSArray new];
+  } else {
+    SBSApplicationShortcutItem* last = [res lastObject];
+    if (last != nil && [last.type isEqualToString: actionTypeId]) {
+      // already added
+      return res;
+    }
+  }
 
   SBSApplicationShortcutCustomImageIcon* icon = [[%c(SBSApplicationShortcutCustomImageIcon) alloc] initWithImagePNGData:iconData];
 
