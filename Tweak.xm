@@ -111,8 +111,8 @@ static NSString* getPListPath() {
 #endif
 
     cache = [NSString stringWithFormat:@"%@/Library/Preferences/%@.plist",
-                    base,
-                    preferenceId];
+                      base,
+                      preferenceId];
   }
 
   return cache;
